@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import loginIcons from "../assets/signin.gif";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import imageTobase64 from "../helpers/imageTobase64";
+import SummaryApi from "../common";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [data, setData] = useState({
@@ -11,6 +13,8 @@ const SignUp = () => {
     confirmPassword: "",
     profilePic: "",
   });
+
+  const navigate = useNavigate()
 
   const handleOnChange = (e) => {
     const { name, value } = e.target;
@@ -23,9 +27,6 @@ const SignUp = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
 
   const handleUploadPic = async (e) => {
     const file = e.target.files[0];
@@ -40,7 +41,38 @@ const SignUp = () => {
     });
   };
 
-  console.log("Data logged in", data);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (data.password === data.confirmPassword) {
+      
+      const dataResponse = await fetch(SummaryApi.signUp.url,{
+        method : SummaryApi.signUp.method,
+        headers : {
+          "content-type" : "application/json"
+        },
+        body : JSON.stringify(data)
+      })
+  
+      const dataApi = await dataResponse.json()
+
+    if (dataApi.success) {
+        toast.success(dataApi.message)
+        navigate("/login")
+    }
+    if (dataApi.error) {
+        toast.error(dataApi.message)
+    }
+  
+    
+    }else{
+      console.log("please check password and confirm password!")
+    }
+
+
+  };
+
 
   return (
     <section id="signup">
